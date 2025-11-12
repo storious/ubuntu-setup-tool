@@ -91,12 +91,9 @@ init() {
     # --- [优化点] 适用于 Ubuntu 24.04 的包列表 ---
     packages=(
         build-essential
-        tar
+        vim
         gcc-doc
         gdb
-        cgdb
-        libreadline-dev
-        libsdl2-dev
         wget
         ripgrep
         valgrind
@@ -156,6 +153,8 @@ init() {
     log_info "配置 vim"
     if [ -f "$(pwd)/config/.vimrc" ]; then
         run_command cp "$(pwd)/config/.vimrc" "$HOME/.vimrc"
+        # 加入全局vim配置，如不需要可注释
+        run_command cp "$(pwd)/config/.vimrc" "/etc/vim/vimrc"
     else
         log_warning "配置文件 $(pwd)/config/.vimrc 不存在，跳过"
     fi
