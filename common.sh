@@ -90,6 +90,7 @@ init() {
     log_info "正在安装编程开发环境和基础 CLI 工具"
     # --- [优化点] 适用于 Ubuntu 24.04 的包列表 ---
     packages=(
+	ssh
         build-essential
         vim
         gcc-doc

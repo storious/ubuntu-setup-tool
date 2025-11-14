@@ -1,0 +1,50 @@
+[32m[INFO] 正在初始化脚本(B[m
+[32m[INFO] 正在安装 curl 测速工具(B[m
+[32m[INFO] curl 已安装，跳过(B[m
+[32m[INFO] 正在更新系统(B[m
+[32m[INFO] 正在安装编程开发环境和基础 CLI 工具(B[m
+[32m[INFO] 正在安装 build-essential...(B[m
+[32m[INFO] build-essential 安装成功(B[m
+[32m[INFO] vim 已安装，跳过(B[m
+[32m[INFO] 正在安装 gcc-doc...(B[m
+[32m[INFO] gcc-doc 安装成功(B[m
+[32m[INFO] 正在安装 gdb...(B[m
+[32m[INFO] gdb 安装成功(B[m
+[32m[INFO] wget 已安装，跳过(B[m
+[32m[INFO] 正在安装 ripgrep...(B[m
+[32m[INFO] ripgrep 安装成功(B[m
+[32m[INFO] 正在安装 valgrind...(B[m
+[32m[INFO] valgrind 安装成功(B[m
+[32m[INFO] 正在安装 bear...(B[m
+[32m[INFO] bear 安装成功(B[m
+[32m[INFO] git 已安装，跳过(B[m
+[32m[INFO] 正在安装 tldr...(B[m
+[32m[INFO] tldr 安装成功(B[m
+[32m[INFO] tmux 已安装，跳过(B[m
+[32m[INFO] 正在安装 zsh...(B[m
+[32m[INFO] zsh 安装成功(B[m
+[32m[INFO] 正在开启 SSH 服务(B[m
+[32m[INFO] 正在初始化脚本(B[m
+[32m[INFO] 正在安装 curl 测速工具(B[m
+[32m[INFO] curl 已安装，跳过(B[m
+[32m[INFO] 正在更新系统(B[m
+[32m[INFO] 正在安装编程开发环境和基础 CLI 工具(B[m
+[32m[INFO] ssh 已安装，跳过(B[m
+[32m[INFO] build-essential 已安装，跳过(B[m
+[32m[INFO] vim 已安装，跳过(B[m
+[32m[INFO] gcc-doc 已安装，跳过(B[m
+[32m[INFO] gdb 已安装，跳过(B[m
+[32m[INFO] wget 已安装，跳过(B[m
+[32m[INFO] ripgrep 已安装，跳过(B[m
+[32m[INFO] valgrind 已安装，跳过(B[m
+[32m[INFO] bear 已安装，跳过(B[m
+[32m[INFO] git 已安装，跳过(B[m
+[32m[INFO] tldr 已安装，跳过(B[m
+[32m[INFO] tmux 已安装，跳过(B[m
+[32m[INFO] zsh 已安装，跳过(B[m
+[32m[INFO] 正在开启 SSH 服务(B[m
+[32m[INFO] 正在安装 oh-my-zsh(B[m
+[32m[INFO] 正在切换默认 Shell 为 zsh(B[m
+[33m[WARNING] oh-my-zsh 安装完毕, 请注意配置主题样式。重新登录或运行 'zsh' 以生效。(B[m
+[32m[INFO] 配置 vim(B[m
+[32m[INFO] 正在初始化脚本(B[m
