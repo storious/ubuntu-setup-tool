@@ -1,2 +1,9 @@
 *.code-workspace
 .vscode
+.idea
+
+*.log
+
+*.local
+
+*.env
