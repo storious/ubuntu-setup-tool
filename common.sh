@@ -1,25 +1,21 @@
 #!/usr/bin/env bash
 
-# --- 适用于 Ubuntu 24.04 的系统初始化脚本 ---
-set -e # 遇到错误立即退出，防止脚本在错误状态下继续执行
-
-# 定义颜色
+# define color
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 YELLOW=$(tput setaf 3)
 RESET=$(tput sgr0)
 
-# 定义日志级别的颜色和格式
+# define the log level
 INFO="[INFO]"
 WARNING="[WARNING]"
 ERROR="[ERROR]"
 
-# 生成以日期命名的日志文件名
+# generate log file 
 LOG_FILE="$(date +'%Y-%m-%d').log"
 
-# 定义带颜色输出的日志函数
+# define log print function
 log_info() {
-    # 使用 >&2 将日志信息输出到标准错误，这样不会干扰被调用命令的标准输出
     echo -e "${GREEN}${INFO} $1${RESET}" | tee -a "$LOG_FILE" >&2
 }
 
@@ -31,66 +27,61 @@ log_error() {
     echo -e "${RED}${ERROR} $1${RESET}" | tee -a "$LOG_FILE" >&2
 }
 
-# 默认启用 verbose 模式
+# default mode --verbose
 VERBOSE=true
 
-# 帮助菜单
+# help menu
 usage() {
-    echo "使用方法: $0 [选项]"
+    echo "usage: $0 [option]"
     echo ""
-    echo "选项:"
-    echo "  --help, -h         显示此帮助信息"
-    echo "  --quiet, -q        静默模式，不显示命令输出"
-    echo "  --uninstall        卸载已安装的软件和配置"
+    echo "option:"
+    echo "  --help, -h         show the help message"
+    echo "  --quiet, -q        quiet mode, without command output"
+    echo "  --uninstall        uninstall app or config"
     echo ""
-    echo "示例:"
-    echo "  $0                 执行初始化"
-    echo "  $0 --quiet         静默模式执行初始化"
-    echo "  $0 --uninstall     卸载已安装的软件和配置"
+    echo "example:"
+    echo "  $0                 execute initialize"
+    echo "  $0 --quiet         initialize in quiet mode"
+    echo "  $0 --uninstall     uninstall app or config"
 }
 
-# 定义静默或详细运行的命令
+# define command in quiet or verbose mode
 run_command() {
     if [ "$VERBOSE" = true ]; then
-        # 详细模式：显示所有输出
         "$@"
     else
-        # 静默模式：隐藏所有输出，包括错误输出。如果命令失败，set -e 会捕获
         "$@" >/dev/null 2>&1
     fi
 }
 
-# 检查并安装单个包的函数
 install_package() {
     local package="$1"
     if dpkg -l | grep -q "^ii  $package "; then
-        log_info "$package 已安装，跳过"
+        log_info "$package has installed, skipped"
     else
-        log_info "正在安装 $package..."
-        # 使用 DEBIAN_FRONTEND=noninteractive 防止安装过程中弹出交互式提示
+        log_info "installing $package..."
+        # use DEBIAN_FRONTEND=noninteractive avoid interactive tip
         run_command sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "$package"
-        log_info "$package 安装成功"
+        log_info "$package installed successful"
     fi
 }
 
 init() {
-    # 初始化
-    log_info "正在初始化脚本"
+    # initialize
+    log_info "Initializing script"
     run_command sudo apt-get update -q
 
-    # 为 chsrc 安装 curl 测速工具
-    log_info "正在安装 curl 测速工具"
+    # install curl
+    log_info "installing curl"
     install_package "curl"
 
-    # 更新系统
-    log_info "正在更新系统"
+    # update apt 
+    log_info "update apt"
     run_command sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y -q
 
-    # 安装编程开发环境
-    log_info "正在安装编程开发环境和基础 CLI 工具"
-    # --- [优化点] 适用于 Ubuntu 24.04 的包列表 ---
+    log_info "installing dev environment and basic cli tool" 
     packages=(
-	ssh
+	    ssh
         build-essential
         vim
         gcc-doc
@@ -104,105 +95,102 @@ init() {
         tmux
         zsh
     )
-    # 循环安装每个包并记录信息
+    # loop install all packages
     for package in "${packages[@]}"; do
         install_package "$package"
     done
 
-    # 开启 ssh 服务
-    log_info "正在开启 SSH 服务"
+    # start ssh service
+    log_info "starting the ssh server"
     run_command sudo systemctl enable --now ssh
 
-    # --- [修复] 修复 oh-my-zsh 安装问题 ---
-    log_info "正在安装 oh-my-zsh"
-    # 确保目标目录存在，防止 cp 报错
+    log_info "installing oh-my-zsh"
+    # ensure the target directory exist
     run_command mkdir -p "$HOME/.oh-my-zsh/custom/plugins"
     run_command mkdir -p "$HOME/.oh-my-zsh/custom/themes"
 
-    # 检查源目录是否存在，避免 cp 报错
+    # check the directory 
     if [ -d "$(pwd)/pkg/ohmyzsh" ]; then
-        run_command cp -r "$(pwd)/pkg/ohmyzsh/." "$HOME/.oh-my-zsh" # 使用 /. 来复制内容而不是目录本身
+        run_command cp -r "$(pwd)/pkg/ohmyzsh/." "$HOME/.oh-my-zsh"
     else
-        log_warning "源目录 $(pwd)/pkg/ohmyzsh 不存在，跳过 oh-my-zsh 核心文件复制"
+        log_warning "source $(pwd)/pkg/ohmyzsh not found, skipped oh-my-zsh copy"
     fi
 
     if [ -d "$(pwd)/pkg/zsh-plugins" ]; then
         run_command cp -r "$(pwd)"/pkg/zsh-plugins/* "$HOME/.oh-my-zsh/custom/plugins"
     else
-        log_warning "源目录 $(pwd)/pkg/zsh-plugins 不存在，跳过插件复制"
+        log_warning "source $(pwd)/pkg/zsh-plugins skipped, skipped plugin copy"
     fi
 
     if [ -d "$(pwd)/pkg/zsh-themes" ]; then
         run_command cp -r "$(pwd)"/pkg/zsh-themes/* "$HOME/.oh-my-zsh/custom/themes"
     else
-        log_warning "源目录 $(pwd)/pkg/zsh-themes 不存在，跳过主题复制"
+        log_warning "source $(pwd)/pkg/zsh-themes not found, skipped theme copy"
     fi
 
     if [ -f "$(pwd)/config/.zshrc" ]; then
         run_command cp "$(pwd)/config/.zshrc" "$HOME/.zshrc"
     else
-        log_warning "配置文件 $(pwd)/config/.zshrc 不存在，跳过"
+        log_warning "config $(pwd)/config/.zshrc not found, skipped"
     fi
 
-    # 切换用户默认 Shell
-    log_info "正在切换默认 Shell 为 zsh"
-    # 不需要 sudo，chsh 只修改当前用户的shell
+    log_info "switching default Shell to zsh"
+    # don't need sudo，chsh only modify current user shell
     run_command chsh -s "$(which zsh)"
-    log_warning "oh-my-zsh 安装完毕, 请注意配置主题样式。重新登录或运行 'zsh' 以生效。"
+    log_warning "oh-my-zsh installation finished, please chose theme. sign again or run `zsh` command."
 
-    # 配置 vim
-    log_info "配置 vim"
+    # config vim
+    log_info "config vim"
     if [ -f "$(pwd)/config/.vimrc" ]; then
         run_command cp "$(pwd)/config/.vimrc" "$HOME/.vimrc"
-        # 加入全局vim配置，如不需要可注释
-        run_command cp "$(pwd)/config/.vimrc" "/etc/vim/vimrc"
     else
-        log_warning "配置文件 $(pwd)/config/.vimrc 不存在，跳过"
+        log_warning "config $(pwd)/config/.vimrc not found, skipped"
     fi
 
-    # 安装 oh-my-tmux
-    log_info "正在使用 oh-my-tmux 配置 tmux"
+    # install oh-my-tmux
+    log_info "using oh-my-tmux config tmux"
     run_command mkdir -p "$HOME/.config/tmux"
     if [ -f "$(pwd)/config/.tmux/.tmux.conf" ]; then
         run_command cp "$(pwd)/config/.tmux/.tmux.conf" "$HOME/.config/tmux/tmux.conf"
     else
-        log_warning "配置文件 $(pwd)/config/.tmux/.tmux.conf 不存在，跳过"
+        log_warning "config $(pwd)/config/.tmux/.tmux.conf not found, skipped"
     fi
     if [ -f "$(pwd)/config/.tmux/.tmux.conf.local" ]; then
         run_command cp "$(pwd)/config/.tmux/.tmux.conf.local" "$HOME/.config/tmux/tmux.conf.local"
     else
-        log_warning "配置文件 $(pwd)/config/.tmux/.tmux.conf.local 不存在，跳过"
+        log_warning "config $(pwd)/config/.tmux/.tmux.conf.local not fount, skipped"
     fi
 
-    # 完成
-    log_info "正在清理无关软件包"
+    # finished
+    log_info "cleaning the unused packages"
     run_command sudo apt-get autoremove --purge -y -qq
-    log_info "系统初始化已完成"
-    log_info "如果需要卸载 oh-my-zsh oh-my-tmux, 请键入 bash $0 --uninstall"
+    log_info "environment has initialized"
+    log_info "uninstall `oh-my-zsh` `oh-my-tmux`, enter bash $0 --uninstall"
 }
 
+
 uninstall() {
-    log_info "正在卸载 oh-my-zsh"
-    # 检查卸载脚本是否存在
+    log_info "uninstalling oh-my-zsh"
+    # check uninstall script if existence
     if [ -f "$HOME/.oh-my-zsh/tools/uninstall.sh" ]; then
         run_command bash "$HOME/.oh-my-zsh/tools/uninstall.sh"
     else
-        log_warning "oh-my-zsh 卸载脚本未找到，尝试手动删除..."
+        log_warning "oh-my-zsh uninstall script not found, try manual operating"
         run_command rm -rf "$HOME/.oh-my-zsh"
         run_command rm -f "$HOME/.zshrc"
     fi
 
-    log_info "正在备份并移除 oh-my-tmux 配置"
+    log_info "removing oh-my-tmux"
     if [ -f "$HOME/.config/tmux/tmux.conf" ]; then
         run_command mv "$HOME/.config/tmux/tmux.conf" "$HOME/.config/tmux/tmux.conf.bak"
     fi
     if [ -f "$HOME/.config/tmux/tmux.conf.local" ]; then
         run_command mv "$HOME/.config/tmux/tmux.conf.local" "$HOME/.config/tmux/tmux.conf.local.bak"
     fi
-    log_info "卸载完成，配置文件已备份为 .bak 文件。"
+    log_info "uninstall successfully config has backup as .bak file."
 }
 
-# 检查参数
+# check arguments 
 while [[ $# -gt 0 ]]; do
     case $1 in
     --help | -h)
@@ -218,12 +206,12 @@ while [[ $# -gt 0 ]]; do
         exit 0
         ;;
     *)
-        log_error "未知选项: $1"
+        log_error "unknown option: $1"
         usage
-        exit 1 # 未知选项时退出码为1
+        exit 1 
         ;;
     esac
 done
 
-# 如果没有提供任何参数，则执行初始化
+# if no flag, default execute init 
 init
